@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Website Sysadmin</title>
+    <link rel="stylesheet" href="../assets/sysadmin.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <header>
+        <div class="judul">
+            <h1>IT EXPLORER</h1>
+            <p>Website Belajar Sysadmin</p>
+        </div>
+        <nav class="materi">
+            <ul>
+                <li><a href="../index.html">CCNA</a></li>
+                <li><a href="#sysadmin">SYSADMIN</a></li>
+            </ul>
+        </nav>
+        <aside>
+        <nav>
+            <ol>
+                <li>
+                    <h4><a href="#step1">Penjelasan</a></h4>
+                </li>
+                <li>
+                    <h4><a href="#step2">Konfigurasi Repository&Install Bind9</a></h4>
+                </li>
+                <li>
+                    <h4><a href="#step3">Konfigurasi Zone</a></h4>
+                </li>
+                <li>
+                    <h4><a href="#step4">Konfigurasi File Forward&Reverse</h4>
+                </li>
+                <li>
+                    <h4><a href="#step5">Konfigurasi File Resolv</a></h4>
+                </li>
+                <li>
+                    <h4><a href="#step6">Verify domain</a></h4>
+                </li>
+            </ol>
+        </nav>
+        </aside>
+    </header>
+    <main>
+        <div id="web">
+            <article class="sysadmin" id="step1">
+                <h1>1. Penjelasan</h1>
+                <p>DNS server merupakan metode mentranslate IP menjadi domain, dimana diterapkan di internet seperti
+                    website.DNS Server ini sudah kita pakai dalam kehidupan sehari-hari seperti akseses facebook.com,
+                    keuntungan DNS Server adalah kita tidak harus menghafal IP untuk mengakases website, bayangkan jika
+                    ada 10 IP mungkin kita bisa mengingat tapi bagaiman ada 100 atau 1000 lebih, akan sulit
+                    mengingatnya.</p>
+
+            </article>
+            <article class="sysadmin" id="step2">
+                <h1>2. Konfigurasi Repository&Install Bind9</h1>
+                <p>Untuk konfigurasi DNS Server kita harus install service bind9.
+                    Seblumnya kita harus mengarah repository online, menggunakan command “nano /etc/apt/source.list”.
+                    Repository yang saya gunakan adalah milik Debian langsung
+                </p>
+                <img src="../gambar/repository.png" alt="repository">
+                <p>Selanjutnya kita install service bind9, pastikan kalian sudah bisa ping google.com ya.</p>
+                <img src="../gambar/install-bind9.png" alt="install-bind9">
+                <p>setelah bind9 berhasil dinstall, selanjutnya kita akan konfigurasi file yang berada pada /etc/bind/.
+                    Yang akan kita rubah pada named.conf.local, forward dan reversenya.</p>
+            </article>
+            <article class="sysadmin" id="step3">
+                <h1>3. Konfigurasi Zone</h1>
+                <p>Pertama kita konfiggurasikan named.conf.local dulu, untuk command nya “cd /etc/bind/” lalu “nano
+                    named.conf.local”</p>
+                <img src="../gambar/konfigurasi-zone.png" alt="konfigurasi-zone">
+                <p>Diatas terdapat 2 zone, pertama digunakan untuk domain dan file mengarah ke file forward dan untuk
+                    zone ke 2 adalah digunakan untuk translate ip jadi domain, file mengarah ke reverd
+                    Pada zone ke 168.192 adalah ip awal yang ada pada server. Kalian bisa perhatikan pada gambar yang
+                    menampilkan IP Address dibawah ini.
+                </p>
+                <img src="../gambar/IP-Address.png" alt="IP-Address">
+            </article>
+            <article class="sysadmin" id="step4">
+                <h1>4. Konfigurasi File Forward&Reverse</h1>
+                <p>Lalu kita buat file forward dan file reverse, dengan cara copy file yang sudah di sedikan ketika kita
+                    berhasil install bind9.Kalian perhatikan file db.local untuk file Forward dan File db.127 untuk File
+                    reverse</p>
+                <img src="../gambar/copy-file-forward&reverse.png" alt="copy-file-forward">
+                <p>Oke kita konfigurasikan file forward terlebih dahulu </p>
+                <img src="../gambar/file-forward.png" alt="file-forward">
+                <p>Pada gambar diatas kita hanya mendefinisikan domain dan ip untuk domain<br>
+                    Oke selanjutnya kita akan konfigurasi file reverse, yaitu file 192</p>
+                <img src="../gambar/file-reverse.png" alt="file-reverse">
+                <p>Untuk konfigurasi reverse nya seperti diatas, dimana kita definisikan domain dan IP. Untuk IP kita
+                    balik penulisannya, jadi akan di tulis 118.199.168 dari 192.168.199.118, perhatikan pada IP bahwa
+                    file reverse 192 nya tidak ada, kenapa tdak ditulis ? karena 192 sudah ditulis di named.conf.local
+                </p>
+                <p>Selanjutnya kita wajib restart service bind9. Dan juga kita cek apakah domain kita sudah berjalan
+                    atau belum.</p>
+                <img src="../gambar/verify-gagal.png" alt="verify-gagal">
+                <p>Perhatikan pada gambar diatas kita restart service named bukannya bind9, tidak usah bingung karena
+                    named adalah nama lain dari service bind9. Setealah kita coba dengan <strong>nslookup ke domain dan
+                        juga ke IP belum bisa</strong>, IP yang ditampilkan masih salah seharusnya Ketika kita nslookup
+                    menggunakan domain harusnya yang muncul IP nya 192.168.199.118.</p>
+            </article>
+            <article class="sysadmin" id="step5">
+                <h1>5. Konfigurasi File Resolv</h1>
+                <p>Bagaimana agar domain nya bisa berjaalan ? solusi akan masalah ini adalah kita harus menggunakan dns
+                    yang telah kita buat sebelumnya pada os kita.Command yang kita gunakan adalah “nano
+                    /etc/resolv.conf”</p>
+                <img src="../gambar/file-resolv.png" alt="file-resolv">
+                <p>Pada gambar diatas kita disabled dns kearah google dengan memberi tanda #, dan dibawah kita tambahkan
+                    <strong>“nameserver 192.168.199.118”</strong> mengarah ke dns server kita.</p>
+            </article>
+            <article class="sysadmin" id="step6">
+                <h1>6. Verify domain</h1>
+                <p>Selanjutnya kita verfikasi dengan menggunakan nslookup. Hasil dari dns kita arahkan ke local kita</p>
+                <img src="../gambar/verify-fix.png" alt="verify-fix">
+            </article>
+        </div>
+    </main>
+    <footer>
+        <p>Muhammad Galih Abdurrahman &#169; 2022, Dicoding Academy</p>
+    </footer>
+</body>
+</html>
